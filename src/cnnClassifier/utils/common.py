@@ -1,11 +1,11 @@
 import os  # Module to interact with the operating system
 from box.exceptions import BoxValueError  # Exception handling from the Box library
 import yaml  # Module to work with YAML files
-from cnnClassifier import logger  # Importing the logger from the cnnClassifier module
+from src.cnnClassifier import logger  # Importing the logger from the cnnClassifier module
 import json  # Module to work with JSON files
 import joblib  # Module to save and load Python objects as binary files
 from ensure import ensure_annotations  # Decorator to enforce type annotations
-from box import ConfigBox  # Class to convert dictionaries into objects
+from box import ConfigBox  # type: ignore # Class to convert dictionaries into objects
 from pathlib import Path  # Module to work with filesystem paths
 from typing import Any  # For type hinting
 import base64  # Module to encode and decode data with Base64
@@ -34,7 +34,6 @@ def read_yaml(path_to_yaml: Path) -> ConfigBox:
     except Exception as e:
         raise e
 
-
 @ensure_annotations
 def create_directories(path_to_directories: list, verbose=True):
     """Create directories specified in the list.
@@ -48,8 +47,6 @@ def create_directories(path_to_directories: list, verbose=True):
         if verbose:
             logger.info(f"Created directory at: {path}")
 
-
-
 @ensure_annotations
 def save_json(path: Path, data: dict):
     """Save dictionary data to a JSON file.
@@ -61,7 +58,6 @@ def save_json(path: Path, data: dict):
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
     logger.info(f"JSON file saved at: {path}")
-
 
 @ensure_annotations
 def load_json(path: Path) -> ConfigBox:
@@ -77,7 +73,6 @@ def load_json(path: Path) -> ConfigBox:
         content = json.load(f)
     logger.info(f"JSON file loaded successfully from: {path}")
     return ConfigBox(content)
-
 
 @ensure_annotations
 def save_bin(data: Any, path: Path):
@@ -116,3 +111,27 @@ def get_size(path: Path) -> str:
     """
     size_in_kb = round(os.path.getsize(path) / 1024)
     return f"~ {size_in_kb} KB"
+
+def decodeImage(imgstring, fileName):
+    """Decode a Base64 encoded image string and save it as a file.
+
+    Args:
+        imgstring (str): Base64 encoded image string.
+        fileName (str): Path to save the decoded image file.
+    """
+    imgdata = base64.b64decode(imgstring)
+    with open(fileName, 'wb') as f:
+        f.write(imgdata)
+        f.close()
+
+def encodeImageIntoBase64(croppedImagePath):
+    """Encode an image file into a Base64 string.
+
+    Args:
+        croppedImagePath (str): Path to the image file.
+
+    Returns:
+        str: Base64 encoded image string.
+    """
+    with open(croppedImagePath, "rb") as f:
+        return base64.b64encode(f.read())
